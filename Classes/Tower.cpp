@@ -9,6 +9,7 @@
 #include "Tower.h"
 #include "Enemy.h"
 #include "SimpleAudioEngine.h"
+#include "Bullets.h"
 #include <math.h>
 
 USING_NS_CC;
@@ -94,7 +95,7 @@ void Tower::attackEnemy()
 
 void Tower::shootWeapon(float delta)
 {
-    Sprite *bullet = Sprite::create("bullet.png");
+    NormalBullet *bullet = NormalBullet::create("bullet.png");
     bullet->setPosition(_mySprite->getPosition());
     _mainScene->addChild(bullet, 2);
     
@@ -104,9 +105,9 @@ void Tower::shootWeapon(float delta)
      * The more extensible and reasonable way is to check collisions between enemies 
      * and the bullets using events to build communication between the two.
      */
-    bullet->runAction(Sequence::create(MoveTo::create(0.1, _chosenEnemy->getMySprite()->getPosition()),
-                                       CallFunc::create(CC_CALLBACK_0(Tower::damageEnemy, this)),
-                                       CallFuncN::create(CC_CALLBACK_1(Tower::removeBullet, this)),NULL));
+    bullet->runAction(MoveTo::create(0.1, _chosenEnemy->getMySprite()->getPosition()));
+    
+    bullet->retain();
 }
 
 void Tower::damageEnemy()

@@ -2,6 +2,7 @@
 #include "Tower.h"
 #include "Waypoint.h"
 #include "Enemy.h"
+#include "Bullets.h"
 #include "SimpleAudioEngine.h"
 #include <sys/timeb.h>
 
@@ -96,6 +97,12 @@ bool HelloWorld::init()
     eventListener->onTouchesBegan = CC_CALLBACK_2(HelloWorld::onTouchesBegan, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(eventListener, this);
     
+    // collision detect event.
+    auto collisionEventListener = EventListenerCustom::create("bullet_hits_enemy", CC_CALLBACK_1(HelloWorld::bulletHitCallback, this));
+    
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(collisionEventListener, this);
+    
+    // Audio play
     CocosDenshion::SimpleAudioEngine *audioPlayer = CocosDenshion::SimpleAudioEngine::getInstance();
     audioPlayer->playBackgroundMusic("8bitDungeonLevel.mp3", true);
     audioPlayer->preloadEffect("tower_place.wav");
@@ -124,6 +131,10 @@ void HelloWorld::update(float delta)
         loadWave();
         _currentWaveTime = currentTime;
     }
+    
+    bulletHitDetection();
+    wipeHittedBullet();
+    
     if (_wave >= _maxWave && _enemies->empty()) {
         doGameOver();
     }
@@ -238,6 +249,60 @@ bool HelloWorld::canBuyTower()
         return true;
     }
     return false;
+}
+
+void HelloWorld::bulletHitDetection()
+{
+    // bullet hit detection
+    for (auto child : this->getChildren()) {
+        if (child->getTag() == 1001) {
+            Bullet *bullet = (Bullet *)child;
+            for (auto anotherChild : this->getChildren()) {
+                if (anotherChild->getTag() == 2001) {
+                    Enemy *enemy = (Enemy *)anotherChild;
+                    if (bullet->getBoundingBox().intersectsRect(enemy->getMySprite()->getBoundingBox())) {
+                        std::map<std::string, cocos2d::Node*> *info = new std::map<std::string, cocos2d::Node*>();
+                        info->insert(std::make_pair("sender", bullet));
+                        info->insert(std::make_pair("receiver", anotherChild));
+                        
+                        EventCustom bulletHitEvent("bullet_hits_enemy");
+                        bulletHitEvent.setUserData(info);
+                        
+                        _eventDispatcher->dispatchEvent(&bulletHitEvent);
+                        break;
+                    }
+                }
+            }
+            
+        }
+    }
+}
+
+void HelloWorld::wipeHittedBullet()
+{
+    for (auto child : this->getChildren()) {
+        if (child->getTag() == 1001) {
+            // get rid of non hit bullet
+            if (child->getReferenceCount() > 0 && child->getNumberOfRunningActions() == 0) {
+                child->removeFromParent();
+                child->release();
+            }
+        }
+    }
+}
+
+void HelloWorld::bulletHitCallback(cocos2d::EventCustom *event)
+{
+    std::map<std::string, cocos2d::Node*> *info = (std::map<std::string, cocos2d::Node*> *)event->getUserData();
+    Bullet *bullet = (Bullet *)info->find("sender")->second;
+    Enemy *enemyHitted = (Enemy *)info->find("receiver")->second;
+    
+    bullet->damageEnemy(enemyHitted);
+    bullet->removeFromParent();
+    
+    bullet->release();
+    info->clear();
+    delete info;
 }
 
 void HelloWorld::ccFillPoly(cocos2d::Point *poli, int points, bool closePolygon)
