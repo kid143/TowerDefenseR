@@ -47,6 +47,9 @@ private:
                                       float circleRadius2);
     void ccFillPoly(cocos2d::Point *poli, int points, bool closePolygon);
     void awardedForGold(int gold);
+    void bulletHitDetection();
+    void bulletHitCallback(cocos2d::EventCustom *event);
+    void wipeHittedBullet();
     void enemyGotKilled();
     void getHpDamage();
     void doGameOver();

@@ -40,6 +40,7 @@ bool Enemy::initWithMainScene(HelloWorld *mainScene)
         return false;
     }
     
+    this->setTag(2001);
     _mainScene = mainScene;
     _maxHp = 40;
     _currentHp = _maxHp;
