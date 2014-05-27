@@ -122,6 +122,7 @@ void HelloWorld::update(float delta)
     double currentTime = now.time + now.millitm / 1000;
     if (currentTime - _currentWaveTime >= 15.0f) {
         loadWave();
+        _currentWaveTime = currentTime;
     }
     if (_wave >= _maxWave && _enemies->empty()) {
         doGameOver();
