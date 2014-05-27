@@ -52,6 +52,8 @@ bool Waypoint::initWithMainSceneAndLocation(HelloWorld* mainScene, const Point& 
  *
  */
 
+// Waypoint debug draw
+#ifdef COCOS2D_DEBUG
 void Waypoint::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
 {
     CustomCommand *command = new CustomCommand();
@@ -79,5 +81,5 @@ void Waypoint::onDraw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool
     if(_nextWaypoint)
         DrawPrimitives::drawLine(_myPosition, _nextWaypoint->getMyPosition());
 }
-
+#endif
 //-----------------------------------------------------------------------------------

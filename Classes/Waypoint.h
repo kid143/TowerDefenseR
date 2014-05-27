@@ -30,10 +30,10 @@ public:
     static Waypoint* nodeWithMainSceneAndLocation(HelloWorld* mainScene,
                                                   const cocos2d::Point& location);
     bool initWithMainSceneAndLocation(HelloWorld* mainScene, const cocos2d::Point& location);
-    
+#ifdef COCOS2D_DEBUG
     virtual void draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated);
     void onDraw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated);
-    
+#endif
 };
 
 #endif /* defined(__TowerDefenseR__Waypoint__) */

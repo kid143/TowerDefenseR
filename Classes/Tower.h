@@ -38,9 +38,10 @@ public:
     CC_SYNTHESIZE(Enemy*, _chosenEnemy, ChosenEnemy);
     
     virtual void update(float delta);
+#ifdef COCOS2D_DEBUG
     virtual void draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated);
     void onDraw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated);
-    
+#endif
     static Tower* nodeWithMainSceneAndLocation(HelloWorld* mainScene, const cocos2d::Point& point);
     bool initWithMainSceneAndLocation(HelloWorld* mainScene, const cocos2d::Point& point);
     

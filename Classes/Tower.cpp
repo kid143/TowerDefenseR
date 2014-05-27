@@ -155,6 +155,8 @@ void Tower::lostSightOfEnemy()
  *
  */
 
+// Tower Debug draw.
+#ifdef COCOS2D_DEBUG
 void Tower::onDraw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
 {
     kmGLPushMatrix();
@@ -177,4 +179,5 @@ void Tower::draw(Renderer *renderer, const kmMat4 &transform, bool transformUpda
     
     Node::draw(renderer, transform, transformUpdated);
 }
+#endif
 //-----------------------------------------------------------------------------------
