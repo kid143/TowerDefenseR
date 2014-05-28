@@ -21,7 +21,20 @@ NormalBullet* NormalBullet::create(const std::string &filename)
     return nullptr;
 }
 
-void NormalBullet::damageEnemy(Enemy *enemy)
+void NormalBullet::damageEnemies(cocos2d::Vector<Enemy *> *enemies)
 {
+    Enemy *enemy = enemies->getRandomObject();
+    
     enemy->getDamaged(_damage);
+}
+
+bool NormalBullet::hitOthers()
+{
+    // Normal bullet hit only one target.
+    return false;
+}
+
+bool NormalBullet::canHitTarget(Enemy* enemy)
+{
+    return getBoundingBox().intersectsRect(enemy->getMySprite()->getBoundingBox());
 }

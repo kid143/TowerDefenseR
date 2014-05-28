@@ -254,28 +254,29 @@ bool HelloWorld::canBuyTower()
 void HelloWorld::bulletHitDetection()
 {
     // bullet hit detection
-    for (auto child : this->getChildren()) {
-        if (child->getTag() == 1001) {
-            Bullet *bullet = (Bullet *)child;
-            for (auto anotherChild : this->getChildren()) {
-                if (anotherChild->getTag() == 2001) {
-                    Enemy *enemy = (Enemy *)anotherChild;
-                    if (bullet->getBoundingBox().intersectsRect(enemy->getMySprite()->getBoundingBox())) {
-                        std::map<std::string, cocos2d::Node*> *info = new std::map<std::string, cocos2d::Node*>();
-                        info->insert(std::make_pair("sender", bullet));
-                        info->insert(std::make_pair("receiver", anotherChild));
-                        
-                        EventCustom bulletHitEvent("bullet_hits_enemy");
-                        bulletHitEvent.setUserData(info);
-                        
-                        _eventDispatcher->dispatchEvent(&bulletHitEvent);
-                        break;
-                    }
-                }
+    enumerateChildrenByTagWithFunction(1001, [=](cocos2d::Node* child, bool *stop) {
+        Bullet *bullet = (Bullet *)child;
+        Vector<cocos2d::Node*> *targets = new Vector<cocos2d::Node*>();
+        this->enumerateChildrenByTagWithFunction(2001, [=](cocos2d::Node* child, bool *stop2) {
+            if (bullet->canHitTarget((Enemy *)child)) {
+                targets->pushBack(child);
+                *stop2 = !bullet->hitOthers();
             }
+        });
+        
+        if (targets->size() > 0) {
+            // trigger bullet hit event.
+            std::map<std::string, Vector<cocos2d::Node *>*> *info = new std::map<std::string, Vector<cocos2d::Node *>*>();
+            Vector<cocos2d::Node*> *sender = new Vector<cocos2d::Node*>();
+            sender->pushBack(bullet);
+            info->insert(std::make_pair("sender", sender));
+            info->insert(std::make_pair("receiver", targets));
             
+            EventCustom bulletHitEvent("bullet_hits_enemy");
+            bulletHitEvent.setUserData(info);
+            _eventDispatcher->dispatchEvent(&bulletHitEvent);
         }
-    }
+    });
 }
 
 void HelloWorld::wipeHittedBullet()
@@ -294,15 +295,36 @@ void HelloWorld::wipeHittedBullet()
 void HelloWorld::bulletHitCallback(cocos2d::EventCustom *event)
 {
     std::map<std::string, cocos2d::Node*> *info = (std::map<std::string, cocos2d::Node*> *)event->getUserData();
-    Bullet *bullet = (Bullet *)info->find("sender")->second;
-    Enemy *enemyHitted = (Enemy *)info->find("receiver")->second;
+    Vector<cocos2d::Node*> *sender = (Vector<cocos2d::Node*> *)info->find("sender")->second;
+    Bullet *bullet = (Bullet *)sender->getRandomObject();
+    Vector<cocos2d::Node*> *targets = (Vector<cocos2d::Node*> *)info->find("receiver")->second;
+    Vector<Enemy*> *targetEnemies = (Vector<Enemy*>*)targets;
     
-    bullet->damageEnemy(enemyHitted);
+    bullet->damageEnemies(targetEnemies);
     bullet->removeFromParent();
     
     bullet->release();
+    sender->clear();
+    targets->clear();
+    delete sender;
+    delete targets;
     info->clear();
     delete info;
+}
+
+void HelloWorld::enumerateChildrenByTagWithFunction(int tag,
+                                                    const std::function<void (cocos2d::Node *, bool *)>& callback)
+{
+    bool shouldStop = false;
+    bool *stop = &shouldStop;
+    Vector<cocos2d::Node*> children = getChildren();
+    auto it = children.begin();
+    while (!*stop && it != children.end()) {
+        if ((*it)->getTag() == tag) {
+            callback(*it, stop);
+        }
+        it++;
+    }
 }
 
 void HelloWorld::ccFillPoly(cocos2d::Point *poli, int points, bool closePolygon)

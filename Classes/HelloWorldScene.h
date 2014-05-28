@@ -55,6 +55,8 @@ private:
     void doGameOver();
     bool canBuyTower();
     
+    void enumerateChildrenByTagWithFunction(int tag, const std::function<void(cocos2d::Node*, bool*)>&callback);
+    
     bool loadWave();
     void update(float delta);
 };

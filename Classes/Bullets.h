@@ -20,7 +20,9 @@ public:
     Bullet() {}
     ~Bullet() {}
     
-    virtual void damageEnemy(Enemy* enemy)=0;
+    virtual void damageEnemies(cocos2d::Vector<Enemy*>* enemies)=0;
+    virtual bool hitOthers()=0;
+    virtual bool canHitTarget(Enemy* enemy)=0;
 };
 
 class NormalBullet : public Bullet {
@@ -33,7 +35,9 @@ public:
     
     static NormalBullet* create(const std::string& filename);
     
-    virtual void damageEnemy(Enemy* enemy);
+    virtual void damageEnemies(cocos2d::Vector<Enemy*>* enemies);
+    virtual bool hitOthers();
+    virtual bool canHitTarget(Enemy* enemy);
 };
 
 #endif /* defined(__TowerDefenseR__Bullets__) */
