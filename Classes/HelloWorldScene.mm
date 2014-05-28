@@ -312,21 +312,6 @@ void HelloWorld::bulletHitCallback(cocos2d::EventCustom *event)
     delete info;
 }
 
-void HelloWorld::enumerateChildrenByTagWithFunction(int tag,
-                                                    const std::function<void (cocos2d::Node *, bool *)>& callback)
-{
-    bool shouldStop = false;
-    bool *stop = &shouldStop;
-    Vector<cocos2d::Node*> children = getChildren();
-    auto it = children.begin();
-    while (!*stop && it != children.end()) {
-        if ((*it)->getTag() == tag) {
-            callback(*it, stop);
-        }
-        it++;
-    }
-}
-
 void HelloWorld::ccFillPoly(cocos2d::Point *poli, int points, bool closePolygon)
 {
 
@@ -389,4 +374,23 @@ void HelloWorld::onTouchesBegan(const std::vector<Touch *> &touches, cocos2d::Ev
     }
 }
 
+//------------------------------------------------------------------------
+
+//------------------------------------------------------------------------
+// Helper methods
+//------------------------------------------------------------------------
+void HelloWorld::enumerateChildrenByTagWithFunction(int tag,
+                                                    const std::function<void (cocos2d::Node *, bool *)>& callback)
+{
+    bool shouldStop = false;
+    bool *stop = &shouldStop;
+    Vector<cocos2d::Node*> children = getChildren();
+    auto it = children.begin();
+    while (!*stop && it != children.end()) {
+        if ((*it)->getTag() == tag) {
+            callback(*it, stop);
+        }
+        it++;
+    }
+}
 //------------------------------------------------------------------------
